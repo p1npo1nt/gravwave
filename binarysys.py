@@ -15,7 +15,7 @@ class celestialBody:
         self.mass = mass 
         self.volume = volume
         self.position = tuple(position) # (x,y)
-        self.angular_momentum = angular_momentum
+        self.angular_momentum = tuple(angular_momentum)
 
         # For the case of a black hole, we do not have defined volume, we instead have volume defined as the Schwarz Rad
         if self.btype=="BH":
