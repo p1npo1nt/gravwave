@@ -3,27 +3,36 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.animation import FuncAnimation
 from pycbc.waveform import get_td_waveform
+import binarysys as bs
 
-# Constants and ranges for the grid in space for the contour map
+# Constants and ranges for our grid in space
 x = np.linspace(-100, 100, 400)
 y = np.linspace(-100, 100, 400)
 X, Y = np.meshgrid(x, y)
+G = 6.67430e-11  
+
+# MASSES IN SOLAR MASSES
+cb1 = bs.celestialBody(btype="BH", mass=30, angular_momentum=.9, position=(-30,0))
+cb2 = bs.celestialBody(btype="BH", mass=35, angular_momentum=.7, position=(30,0))
+
+
+
 
 # Parameters for the gravitational wave
-m1 = 30  # Mass of the first celestial body in solar masses
-m2 = 30  # Mass of the second celestial body in solar masses
-spin1 = [0, 0, 0.9]  # Dimensionless spin of CB1 aligned with orbital angular momentum
-spin2 = [0, 0, -0.9] # Dimensionless spin of CB2 aligned with orbital angular momentum
+# m1 = 30  # Mass of the first celestial body in solar masses
+# m2 = 30  # Mass of the second celestial body in solar masses
+# spin1 = [0, 0, 0.9]  # Dimensionless spin of CB1 aligned with orbital angular momentum
+# spin2 = [0, 0, -0.9] # Dimensionless spin of CB2 aligned with orbital angular momentum
 distance = 500  # Distance to the binary in megaparsecs
 inclination = 0  # Inclination angle
 f_lower = 20  # Starting frequency of the waveform
 
 # Generate the waveform
 hp, hc = get_td_waveform(approximant='SEOBNRv4_opt',
-                         mass1=m1,
-                         mass2=m2,
-                         spin1z=spin1[-1],
-                         spin2z=spin2[-1],
+                         mass1=cb1.mass,
+                         mass2=cb2.mass,
+                         spin1z=cb1.angular_momentum,
+                         spin2z=cb2.angular_momentum,
                          delta_t=1.0/4096,
                          f_lower=f_lower,
                          distance=distance,
@@ -31,13 +40,10 @@ hp, hc = get_td_waveform(approximant='SEOBNRv4_opt',
 
 
 # Function to describe the gravitational potential of a binary system
-def binary_gravitational_potential(X, Y, mass1, mass2, pos1, pos2):
-    # Gravitational constant
-    G = 6.67430e-11  
-    # Potential due to mass1 and mass2
-    r1 = np.sqrt((X-pos1[0])**2 + (Y-pos1[1])**2)
-    r2 = np.sqrt((X-pos2[0])**2 + (Y-pos2[1])**2)
-    V = -G * (mass1 / r1 + mass2 / r2)
+def binary_gravitational_potential(X, Y):
+    r1 = np.sqrt((X- cb1.position[0])**2 + (Y- cb1.position[1])**2)
+    r2 = np.sqrt((X- cb2.position[0])**2 + (Y- cb2.position[1])**2)
+    V = -G * (cb1.mass / r1 + cb2.mass / r2)
     return V
 
 # Masses and positions of the two bodies (in arbitrary units)
@@ -46,7 +52,7 @@ pos1 = (-30, 0)  # Position of the first body
 pos2 = (30, 0)   # Position of the second body
 
 # Compute the initial potential and curvature
-V = binary_gravitational_potential(X, Y, mass1, mass2, pos1, pos2)
+V = binary_gravitational_potential(X, Y)
 curvature = V
 
 # Set up the figure and subplots
