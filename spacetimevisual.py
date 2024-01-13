@@ -2,31 +2,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from scipy.integrate import odeint
+import binarysys as bs
 
 # Constants and ranges for our grid in space
 x = np.linspace(-100, 100, 400)
 y = np.linspace(-100, 100, 400)
 X, Y = np.meshgrid(x, y)
+G = 6.67430e-11  
 
-# Function to describe the gravitational potential of a binary system
+cb1 = bs.celestialBody(btype="BH", mass=30e12, angular_momentum=.9, position=(-30,0))
+cb2 = bs.celestialBody(btype="BH", mass=35e12, angular_momentum=.7, position=(30,0))
+
 def binary_gravitational_potential(X, Y, mass1, mass2, pos1, pos2):
-    # Gravitational constant
-    G = 6.67430e-11  
-    # Potential due to mass1 and mass2
-    r1 = np.sqrt((X-pos1[0])**2 + (Y-pos1[1])**2)
-    r2 = np.sqrt((X-pos2[0])**2 + (Y-pos2[1])**2)
-    V = -G * (mass1 / r1 + mass2 / r2)
+    r1 = np.sqrt((X- cb1.position[0])**2 + (Y- cb1.position[1])**2)
+    r2 = np.sqrt((X- cb2.position[0])**2 + (Y- cb2.position[1])**2)
+    V = -G * (cb1.mass / r1 + cb2.mass / r2)
     return V
 
-# Masses and positions of the two bodies (in arbitrary units)
-mass1 = mass2 = 1e12  # Masses of the two bodies
-pos1 = (-30, 0)  # Position of the first body
-pos2 = (30, 0)   # Position of the second body
+# arb. units
+mass1 = mass2 = 1e12  # masses of two bodies 
+pos1 = (-30, 0)  # position of first body
+pos2 = (30, 0)   # position of second body
 
-# Compute the potential
+# computation of gravitational potential
 V = binary_gravitational_potential(X, Y, mass1, mass2, pos1, pos2)
 
-# Compute the curvature of spacetime (which is proportional to the potential in our simple model)
+# compute the curvature of spacetime (proportional to the potential for the sake fo simplicity)
 curvature = V
 
 # Plotting the contour map
