@@ -7,6 +7,7 @@ c = 299792458
 
 # NOTE: ADD SOMETHING FOR CHIRP MASS
 
+#** MASSES IN SOLAR MASSES
 class celestialBody:
     def __init__(self, btype, mass, angular_momentum, position, volume=None):
         # kg, m^3, kg m^2/s
