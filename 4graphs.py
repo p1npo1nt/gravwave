@@ -35,6 +35,7 @@ fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
 # Plot h+ (hp) and h-cross (hc) waveforms
 
+
 axes[0, 0].plot(sample_times, hp_data, label='h+ polarization')
 axes[0, 0].set_xlabel('Time (s)')
 axes[0, 0].set_ylabel('Strain')
@@ -47,7 +48,7 @@ axes[1, 0].set_ylabel('Strain')
 axes[1, 0].legend()
 axes[1, 0].set_title('hx (hc, h-cross) Polarization of Gravitational Wave')
 
-# Plot spectrograms
+# spectograms
 axes[0, 1].specgram(hp_data, Fs=1.0 / hp.delta_t, cmap='viridis')
 axes[0, 1].set_xlabel('Time (s)')
 axes[0, 1].set_ylabel('Frequency (Hz)')
@@ -57,6 +58,11 @@ axes[1, 1].specgram(hc_data, Fs=1.0 / hc.delta_t, cmap='viridis')
 axes[1, 1].set_xlabel('Time (s)')
 axes[1, 1].set_ylabel('Frequency (Hz)')
 axes[1, 1].set_title('Spectrogram of hx (hc, h-cross) Polarization')
+
+fig.text(0.02, 0.02, f'CB2\nMass: {cb2.mass}, SpinZ: {cb2.angular_momentum[0]}', fontsize=10)
+fig.text(0.02, 0.5, f'CB1\nMass: {cb1.mass}, SpinZ: {cb1.angular_momentum[0]}', fontsize=10)
+# plt.annotate(f'CB1\nMass: {cb1.mass}, SpinZ: {cb1.angular_momentum[0]}', xycoords='figure points', xy=(1,0))
+# plt.annotate(f'CB2\nMass: {cb2.mass}, SpinZ: {cb2.angular_momentum[0]}', xycoords='figure points', xy=(150,0))
 
 plt.tight_layout()
 
