@@ -97,7 +97,7 @@ def update(frame):
     ax1.set_xlabel('x coordinate')
     ax1.set_ylabel('y coordinate')
     ax1.axis('equal')
-
+    
     # Update the waveform plot
     current_time = waveform_time + frame / 30.0  # Adjust the time shift as needed
     current_data = np.interp(current_time, waveform_time, waveform_data)
