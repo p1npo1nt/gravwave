@@ -1,81 +1,71 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from matplotlib.widgets import Slider
-from matplotlib import cm
 import binarysys as bs
 
-# Constants and ranges for our grid in space
-x = np.linspace(-100, 100, 400)
-y = np.linspace(-100, 100, 400)
-X, Y = np.meshgrid(x, y)
-G = 6.67430e-11
+cb1 = bs.celestialBody(btype="BH", mass=20, angular_momentum=(.9, .4), position=(-30,0))
+cb2 = bs.celestialBody(btype="BH", mass=15, angular_momentum=(.7, .6), position=(30,0))
 
-# Create instances of celestial bodies
-cb1 = bs.celestialBody(btype="BH", mass=30e12, angular_momentum=.9, position=(-30, 0))
-cb2 = bs.celestialBody(btype="BH", mass=35e12, angular_momentum=.7, position=(30, 0))
+# Constants for the orbit
+orbit_radius = 2.5
+orbit_center_x = 0
+orbit_center_y = 0
+orbit_period = 2 * np.pi  # One complete orbit
 
-# Define the binary_gravitational_potential function here
-def binary_gravitational_potential(X, Y, mass1, mass2, pos1, pos2):
-    r1 = np.sqrt((X - pos1[0]) ** 2 + (Y - pos1[1]) ** 2)
-    r2 = np.sqrt((X - pos2[0]) ** 2 + (Y - pos2[1]) ** 2)
-    V = -G * (mass1 / r1 + mass2 / r2)
-    return V
 
-# Computation of gravitational potential
-V = binary_gravitational_potential(X, Y, cb1.mass, cb2.mass, cb1.position, cb2.position)
+# Create a function that returns the contour plot data
+def generate_data(x1, y1, x2, y2, mass1, mass2):
+    time = np.linspace(-5, 5, 100)  # Time axis
+    depth = np.linspace(-5, 5, 100)  # Depth axis
+    T, D = np.meshgrid(time, depth)
 
-# Initialize the figure for animation
-fig, ax = plt.subplots(figsize=(10, 8))
-contour = ax.contourf(X, Y, V, 50, cmap='RdYlBu_r')
-colorbar = plt.colorbar(contour)
+    # Influence of each object on spacetime
+    influence1 = cb1.mass / (np.sqrt((T - x1)**2 + (D - y1)**2) + 1)  # Added 1 to avoid division by zero
+    influence2 = cb2.mass / (np.sqrt((T - x2)**2 + (D - y2)**2) + 1)
+    
+    Z = influence1 + influence2  # Combined influence
+    return T, D, Z
 
-# Initialize the celestial bodies on the plot
-body1, = ax.plot([], [], 'ro')
-body2, = ax.plot([], [], 'ro')
+# Initialize the positions of the objects
+x1 = orbit_center_x + orbit_radius
+y1 = orbit_center_y
+x2 = orbit_center_x - orbit_radius
+y2 = orbit_center_y
 
-# Function to update the animation
+# Create the initial contour plot
+T, D, Z = generate_data(x1, y1, x2, y2, cb1.mass, cb2.mass)
+fig, ax = plt.subplots()
+contour = ax.contourf(T, D, Z, levels=50, cmap='plasma')
+plt.colorbar(contour)
+plt.xlabel("Time")
+plt.ylabel("Depth")
+
+# Create two moving points
+point1, = ax.plot(x1, y1, 'wo')  # White point for object
+point2, = ax.plot(x2, y2, 'wo')  # White point for object
+
+# Update function for animation
 def update(frame):
-    # Move the celestial bodies in their orbit
-    cb1.update_position(frame)
-    cb2.update_position(frame)
+    # Calculate the new positions for the orbiting points
+    angle = frame / orbit_period * 2 * np.pi
+    x1 = orbit_center_x + orbit_radius * np.cos(angle)
+    y1 = orbit_center_y + orbit_radius * np.sin(angle)
+    x2 = orbit_center_x + orbit_radius * np.cos(angle + np.pi)
+    y2 = orbit_center_y + orbit_radius * np.sin(angle + np.pi)
 
-    # Update the positions on the plot
-    body1.set_data(cb1.position[0], cb1.position[1])
-    body2.set_data(cb2.position[0], cb2.position[1])
+    point1.set_data(x1, y1)
+    point2.set_data(x2, y2)
 
-    # Recalculate the gravitational potential with new positions
-    V = binary_gravitational_potential(X, Y, cb1.mass, cb2.mass, cb1.position, cb2.position)
+    # Update the contour plot for gravitational potential
+    T, D, Z = generate_data(x1, y1, x2, y2, cb1.mass, cb2.mass)
+    for c in contour.collections:
+        c.remove()
+    contour = ax.contourf(T, D, Z, levels=50, cmap='plasma')
 
-    # Update the contour plot
-    contour = ax.contourf(X, Y, V, 50, cmap='RdYlBu_r')
+    return point1, point2, contour
 
-    # Redraw the annotations and titles to match the updated plot
-    ax.annotate('Mass 1', xy=cb1.position, xytext=(cb1.position[0] + 5, cb1.position[1] + 10),
-                 arrowprops=dict(facecolor='white', shrink=0.05))
-    ax.annotate('Mass 2', xy=cb2.position, xytext=(cb2.position[0] + 5, cb2.position[1] + 10),
-                 arrowprops=dict(facecolor='white', shrink=0.05))
-    ax.set_title('Contour Map of Spacetime Curvature Due to a Binary System')
-    ax.set_xlabel('x coordinate')
-    ax.set_ylabel('y coordinate')
-    ax.axis('equal')
+# Set up the animation
+animation = FuncAnimation(fig, update, frames=np.linspace(0, orbit_period, 100), blit=False)
 
-    return contour.collections + [body1, body2]
-
-# Create the animation
-ani = FuncAnimation(fig, update, frames=np.arange(0, 100, 1), interval=50)
-
-# Add a slider to control the animation
-ax_slider = plt.axes([0.2, 0.02, 0.65, 0.03], facecolor='lightgoldenrodyellow')
-slider = Slider(ax_slider, 'Time', 0, 100, valinit=0)
-
-# Function to update the animation with the slider
-def update_slider(val):
-    frame = int(val)
-    update(frame)
-
-# Connect the slider to the update_slider function
-slider.on_changed(update_slider)
-
-# Show the animation
+# Show the animated plot
 plt.show()
