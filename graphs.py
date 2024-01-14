@@ -21,7 +21,7 @@ def run_simulation(m, spin):
         spin1z=cb1.angular_momentum[0],
         spin2z=cb2.angular_momentum[0],
         f_lower=20,
-        delta_t=0.00024,
+        delta_t=0.00024, # timestep used to generate ringdown
         distance=500,
         inclination=0,
     )
@@ -35,7 +35,6 @@ def run_simulation(m, spin):
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
     # Plot h+ (hp) and h-cross (hc) waveforms
-
 
     axes[0, 0].plot(sample_times, hp_data, label='h+ polarization')
     axes[0, 0].set_xlabel('Time (s)')
@@ -62,8 +61,6 @@ def run_simulation(m, spin):
 
     fig.text(0.02, 0.02, f'CB2\nMass: {cb2.mass}, SpinZ: {cb2.angular_momentum[0]}', fontsize=10)
     fig.text(0.02, 0.5, f'CB1\nMass: {cb1.mass}, SpinZ: {cb1.angular_momentum[0]}', fontsize=10)
-    # plt.annotate(f'CB1\nMass: {cb1.mass}, SpinZ: {cb1.angular_momentum[0]}', xycoords='figure points', xy=(1,0))
-    # plt.annotate(f'CB2\nMass: {cb2.mass}, SpinZ: {cb2.angular_momentum[0]}', xycoords='figure points', xy=(150,0))
 
     plt.tight_layout()
 
