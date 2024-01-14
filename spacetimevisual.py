@@ -19,8 +19,8 @@ def run_simulation(m, spin, sep):
 
     # gens contour plot data
     def generate_data(x1, y1, x2, y2, mass1, mass2):
-        xpos = np.linspace(-75, 75, 100)  # Time axis
-        ypos = np.linspace(-50, 50, 100)  # Depth axis
+        xpos = np.linspace(-75, 75, 100)  
+        ypos = np.linspace(-50, 50, 100)  
         T, D = np.meshgrid(xpos, ypos)
 
         # mass influence
@@ -72,7 +72,7 @@ def run_simulation(m, spin, sep):
     plot_orbit(ax, orbit_center_x, orbit_center_y, orbit_radius1, semi_minor_axis1, color='blue', linestyle='-')
     plot_orbit(ax, orbit_center_x, orbit_center_y, orbit_radius2, semi_minor_axis2, color='red', linestyle='-')
     
-    contour = ax.contourf(T, D, Z, levels=50, cmap='plasma')
+    contour = ax.contourf(T, D, Z, levels=50, cmap='plasma', title='Mass influence on spacetime')
     plt.colorbar(contour)
     plt.title(f'Mass={cb1.mass,cb2.mass} msol, SpinZ={cb1.angular_momentum[0],cb2.angular_momentum[0]}, Sep={sep} au')
     plt.xlabel("x-pos (au)")
